@@ -24,7 +24,14 @@ RUN ssh-keygen -t rsa -f ~/.ssh/id_rsa -P '' && \
 
 RUN mkdir -p ~/hdfs/namenode && \ 
     mkdir -p ~/hdfs/datanode && \
-    mkdir $HADOOP_HOME/logs
+    mkdir $HADOOP_HOME/logs \
+    mkdir /root/hadoop-data
+
+ADD hadoop-streaming.jar /root/hadoop-data
+ADD mapper.py /root/hadoop-data
+ADD reducer.py /root/hadoop-data
+ADD runmapreduce.sh /root/hadoop-data
+ADD word.txt /root/hadoop-data
 
 COPY config/* /tmp/
 

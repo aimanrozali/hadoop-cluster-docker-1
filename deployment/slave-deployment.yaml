@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hadoop-slave
+spec:
+  replicas: 2  # Set the desired number of replicas
+  selector:
+    matchLabels:
+      app: hadoop
+      component: slave
+  template:
+    metadata:
+      labels:
+        app: hadoop
+        component: slave
+    spec:
+      containers:
+      - name: hadoop-slave
+        image: amnrz/hadoop:1.0
+        imagePullPolicy: "Always"
+        stdin: true
+        tty: true

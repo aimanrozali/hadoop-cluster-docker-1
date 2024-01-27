@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hadoop-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hadoop
+      component: master
+  template:
+    metadata:
+      labels:
+        app: hadoop
+        component: master
+    spec:
+      containers:
+      - name: hadoop-master
+        image: amnrz/hadoop:1.0
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 50070
+        - containerPort: 8088
+        stdin: true
+        tty: true
