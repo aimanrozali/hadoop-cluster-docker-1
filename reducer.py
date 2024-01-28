@@ -1,45 +1,44 @@
 #!/usr/bin/env python 
 
-from operator import itemgetter 
+import sys
+import threading
+from queue import Queue
 
-import sys 
+def reducer(input_queue):
+    current_word = None
+    current_count = 0
 
-current_word = None
-current_count = 0
-word = None
+    while not input_queue.empty():
+        word, count = input_queue.get()
+        
+        if current_word == word:
+            current_count += count
+        else:
+            if current_word:
+                print(f"{current_word},{current_count}")
+            current_word = word
+            current_count = count
 
-# read the entire line from STDIN 
+    if current_word:
+        print(f"{current_word},{current_count}")
 
-for line in sys.stdin: 
+def main():
+    input_queue = Queue()
 
-    # remove leading and trailing whitespace 
-    line = line.strip() 
+    # Assuming the input is coming from the standard input
+    for line in sys.stdin:
+        word, count_str = line.strip().split(',')
+        count = int(count_str)
+        input_queue.put((word, count))
 
-    # splitting the data on the basis of tab we have provided in mapper.py 
-    word, count = line.split('\t', 1) 
+    # Creating two reducer threads
+    reducer_thread1 = threading.Thread(target=reducer, args=(input_queue,))
+    reducer_thread2 = threading.Thread(target=reducer, args=(input_queue,))
 
-    # convert count (currently a string) to int 
+    reducer_thread1.start()
+    reducer_thread2.start()
+    reducer_thread1.join()
+    reducer_thread2.join()
 
-    try: 
-        count = int(count) 
-
-    except ValueError: 
-        # count was not a number, so silently 
-        # ignore/discard this line 
-        continue
-
-    # this IF-switch only works because Hadoop sorts map output 
-    # by key (here: word) before it is passed to the reducer 
-
-    if current_word == word: 
-        current_count += count 
-    else: 
-        if current_word: 
-            # write result to STDOUT 
-            print ('%s\t%s' % (current_word, current_count)) 
-        current_count = count 
-        current_word = word 
-
-# do not forget to output the last word if needed! 
-if current_word == word: 
-    print ('%s\t%s' % (current_word, current_count)) 
+if __name__ == "__main__":
+    main()
